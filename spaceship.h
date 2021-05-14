@@ -7,7 +7,7 @@ class HeroSpaceShip {
 }
 
 
-class RGB{
+class RGB {
     public:
     int r,g,b;
     void imprime()

@@ -33,44 +33,33 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
-// includes 
+// Includes 
+#include "Temporizador.h"
 
-
+// Definitions
+Temporizador Timer;
 // functions
-void animate();
-void keyboard(unsigned char key, int x, int y);
-
-
-int  main ( int argc, char** argv )
+void init()
 {
-    cout << "Programa OpenGL" << endl;
-
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
-    glutInitWindowPosition(0,0);
-    glutInitWindowSize(1000, 500);
-    glutCreateWindow("Game - SPACE WARSHIP");
-    init();
-    glutDisplayFunc(display);
-    glutIdleFunc(animate);
-    glutReshapeFunc (reshape);
-    glutKeyboardFunc(keyboard);
-    glutSpecialFunc(arrow_keys);
-
-    // inicia o tratamento dos eventos
-    glutMainLoop ( );
-
-    return 0;
+    glClearColor(1.0f, 1.0f, 1.0f, 0.2f);   
 }
+
+
+double nFrames=0;
+double AccumDeltaT=0;
+double TempoTotal=0;
+// **********************************************************************
+// 
+// **********************************************************************
 void animate()
 {
     double dt;
-    dt = T.getDeltaT();
+    dt = Timer.getDeltaT();
     AccumDeltaT += dt;
     TempoTotal += dt;
     nFrames++;
 
-    if (AccumDeltaT > 1.0/30) // fixa a atualiza��o da tela em 30
+    if (AccumDeltaT > 1.0/30) 
     {
         AccumDeltaT = 0;
         glutPostRedisplay();
@@ -87,61 +76,89 @@ void animate()
 
 void reshape( int w, int h )
 {
-    // Reset the coordinate system before modifying
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    // Define a area a ser ocupada pela area OpenGL dentro da Janela
-    glViewport(0, 0, w, h);
-    // Define os limites logicos da area OpenGL dentro da Janela
-    glOrtho(Min.x,Max.x,
-            Min.y,Max.y,
-            0,1);
-
+    glViewport(0, 0, w, h);  // janela de exibicao 
+    glOrtho(0, 50, 0, 50, 0,1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
-void display( void )
+bool startgame = false;
+void keyboard(unsigned char key, int x, int y)
 {
-
-	// Limpa a tela coma cor de fundo
-	glClear(GL_COLOR_BUFFER_BIT);
-
-    // Define os limites dentro da Janela
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	// Coloque aqui as chamadas das rotinas que desenham os objetos
-	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-	glLineWidth(1);
-	glColor3f(1,1,1); // R, G, B  [0..1]
-    // desenha cidade
-
-	glutSwapBuffers();
-}
-void keyboard ( unsigned char key, int x, int y )
-{
-    PoligonoCSG poligonoCsg;
-    FileService fileService;
 	switch (key)
 	{
 		case 27:            
-			exit (0);   // a tecla ESC for pressionada
+			exit (0);           // a tecla ESC for pressionada
 			break;
-        case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
+        case GLUT_KEY_UP:       // movimenta a mira da nave do heroi no sentido horario
             
             break;
-        case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
+        case GLUT_KEY_DOWN:     // movimenta a mira da nave do heroi no sentido antihorario
 
             break;
-        case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
+        case GLUT_KEY_LEFT:     // movimenta a nave do heroi para esquerda
 
             break;
-        case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
+        case GLUT_KEY_RIGHT:    // movimenta a nave do heroi para esquerda
+
+            break;
+        case 32:                // Tecla SPACE de tiro e start
+            startgame = true;
 
             break;
 		default:
 			break;
 	}
+}
+void drawString(float x, float y, float z, string str) {
+  glRasterPos3f(x, y, z);
+
+   for (string::iterator it=str.begin(); it!=str.end(); ++it) {
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *it);  // Updates the position
+  }
+}
+
+void display( void )
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();  
+    
+    if (!startgame) {
+        glPushMatrix();
+        {
+            glColor3f(0,0,0);
+            drawString(10, 10, 0.0, "Clique ENTER para inicar o Jogo");
+        }    
+        glPopMatrix();
+    } else {
+        glPushMatrix();
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+        glPopMatrix();
+    }
+	glutSwapBuffers();
+}
+
+int main(int argc, char** argv)
+{
+    cout << "Programa OpenGL" << endl;
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(500, 500);
+    glutCreateWindow("Game - SPACE WARSHIP");
+    init();
+    glutDisplayFunc(display);
+    glutIdleFunc(animate);
+    glutReshapeFunc (reshape);
+    glutKeyboardFunc(keyboard);
+
+    // inicia o tratamento dos eventos
+    glutMainLoop();
+
+    return 0;
 }
