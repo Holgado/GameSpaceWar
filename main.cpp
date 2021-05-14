@@ -126,7 +126,7 @@ void display( void )
     glLoadIdentity();  
     
     if (!startgame) {
-        glPushMatrix();
+        glPushMatrix(); 
         {
             glColor3f(0,0,0);
             drawString(10, 10, 0.0, "Clique ENTER para inicar o Jogo");
