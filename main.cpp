@@ -35,16 +35,19 @@ using namespace std;
 
 // Includes 
 #include "Temporizador.h"
-
+#include "spaceship.h"
 // Definitions
 Temporizador Timer;
+RGB PaletteGlobal[100];
+HeroSpaceShip heroSpaceShip;
+MatrixDrawning heroMatrix;
 // functions
 void init()
 {
-    glClearColor(1.0f, 1.0f, 1.0f, 0.2f);   
+    glClearColor(1.0f, 1.0f, 1.0f, 0.2f);
+    heroSpaceShip.setMatrixDrawning("hero-spaceship.txt");
+    heroSpaceShip.getDrawning().drawModel();
 }
-
-
 double nFrames=0;
 double AccumDeltaT=0;
 double TempoTotal=0;
@@ -66,9 +69,9 @@ void animate()
     }
     if (TempoTotal > 5.0)
     {
-        cout << "Tempo Acumulado: "  << TempoTotal << " segundos. " ;
-        cout << "Nros de Frames sem desenho: " << nFrames << endl;
-        cout << "FPS(sem desenho): " << nFrames/TempoTotal << endl;
+        //cout << "Tempo Acumulado: "  << TempoTotal << " segundos. " ;
+        //cout << "Nros de Frames sem desenho: " << nFrames << endl;
+        //cout << "FPS(sem desenho): " << nFrames/TempoTotal << endl;
         TempoTotal = 0;
         nFrames = 0;
     }
@@ -123,19 +126,29 @@ void display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();  
+    glLoadIdentity();
     
     if (!startgame) {
         glPushMatrix(); 
         {
+            glColor3f(0,0,0.2);
+            glBegin(GL_POLYGON); 
+            {
+                glVertex3f (0, 0, 0.0);  
+                glVertex3f (5, 0, 0.0);                          
+                glVertex3f (5, 10, 0.0);      
+                glVertex3f (0, 10, 0.0);    
+            }
+            glEnd(); 
             glColor3f(0,0,0);
-            drawString(10, 10, 0.0, "Clique ENTER para inicar o Jogo");
-        }    
+            drawString(10, 10, 0.0, "Clique SPACE para inicar o Jogo");
+        }   
         glPopMatrix();
     } else {
         glPushMatrix();
         {
             glClear(GL_COLOR_BUFFER_BIT);
+
         }
         glPopMatrix();
     }
