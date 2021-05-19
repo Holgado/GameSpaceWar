@@ -15,7 +15,6 @@
 #include <fstream>
 #include <string>
 
-
 using namespace std;
 
 #ifdef WIN32
@@ -33,43 +32,44 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
-// Includes 
+// Includes
 #include "Temporizador.h"
-#include "spaceship.h"
+#include "Instancia.h"
+#include "matrixdrawning.h"
+
 // Definitions
 Temporizador Timer;
-RGB PaletteGlobal[100];
-HeroSpaceShip heroSpaceShip;
-MatrixDrawning heroMatrix;
+Instancia elements;
+MatrixDrawning matrixDraw;
 // functions
+
 void init()
 {
-    glClearColor(1.0f, 1.0f, 1.0f, 0.2f);
-    heroSpaceShip.setMatrixDrawning("hero-spaceship.txt");
-    heroSpaceShip.getDrawning().drawModel();
+    matrixDraw.readSketch("hero-spaceship.txt");
+    elements.setMatrixDrawning(matrixDraw);
 }
-double nFrames=0;
-double AccumDeltaT=0;
-double TempoTotal=0;
+double nFrames = 0;
+double AccumDeltaT = 0;
+double TempoTotal = 0;
 // **********************************************************************
-// 
+//
 // **********************************************************************
+double dt;
 void animate()
 {
-    double dt;
     dt = Timer.getDeltaT();
     AccumDeltaT += dt;
     TempoTotal += dt;
     nFrames++;
 
-    if (AccumDeltaT > 1.0/30) 
+    if (AccumDeltaT > 1.0 / 30)
     {
         AccumDeltaT = 0;
         glutPostRedisplay();
     }
     if (TempoTotal > 5.0)
     {
-        //cout << "Tempo Acumulado: "  << TempoTotal << " segundos. " ;
+        //cout << "Tempo Acumulado: "  << TempoTotal << " segundos. ";
         //cout << "Nros de Frames sem desenho: " << nFrames << endl;
         //cout << "FPS(sem desenho): " << nFrames/TempoTotal << endl;
         TempoTotal = 0;
@@ -77,72 +77,76 @@ void animate()
     }
 }
 
-void reshape( int w, int h )
+void reshape(int w, int h)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glViewport(0, 0, w, h);  // janela de exibicao 
-    glOrtho(0, 50, 0, 50, 0,1); // Janela de selecao
+    glViewport(0, 0, w, h);      // janela de exibicao
+    glOrtho(0, 50, 0, 50, 0, 1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
+
 bool startgame = false;
 void keyboard(unsigned char key, int x, int y)
 {
-	switch (key)
-	{
-		case 27:            
-			exit (0);           // a tecla ESC for pressionada
-			break;
-        case GLUT_KEY_UP:       // movimenta a mira da nave do heroi no sentido horario
-            
-            break;
-        case GLUT_KEY_DOWN:     // movimenta a mira da nave do heroi no sentido antihorario
-
-            break;
-        case GLUT_KEY_LEFT:     // movimenta a nave do heroi para esquerda
-
-            break;
-        case GLUT_KEY_RIGHT:    // movimenta a nave do heroi para esquerda
-
-            break;
-        case 32:                // Tecla SPACE de tiro e start
-            startgame = true;
-
-            break;
-		default:
-			break;
-	}
+    switch (key)
+    {
+    case 27:
+        exit(0); // a tecla ESC for pressionada
+        break;
+    case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
+        //heroSpaceShip.aimingLeft();
+        break;
+    case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
+        //heroSpaceShip.aimingRight();
+        break;
+    case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
+        //heroSpaceShip.moveLeft();
+        break;
+    case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
+        //heroSpaceShip.moveRight();
+        break;
+    case 32: // Tecla SPACE de tiro e start
+        startgame = true;
+        break;
+    default:
+        break;
+    }
 }
-void drawString(float x, float y, float z, string str) {
-  glRasterPos3f(x, y, z);
-
-   for (string::iterator it=str.begin(); it!=str.end(); ++it) {
-    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *it);  // Updates the position
-  }
-}
-
-void display( void )
+// Fuction to write in the screen
+void drawString(float x, float y, float z, string str)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
+    glRasterPos3f(x, y, z);
+
+    for (string::iterator it = str.begin(); it != str.end(); ++it)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *it); // Updates the position
+    }
+}
+
+
+void display(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    
+
     if (!startgame) {
-        glPushMatrix(); 
+        glPushMatrix();
         {
             glColor3f(0,0,0.2);
-            glBegin(GL_POLYGON); 
+            glBegin(GL_POLYGON);
             {
-                glVertex3f (0, 0, 0.0);  
-                glVertex3f (5, 0, 0.0);                          
-                glVertex3f (5, 10, 0.0);      
-                glVertex3f (0, 10, 0.0);    
+                glVertex3f (0, 0, 0.0);
+                glVertex3f (5, 0, 0.0);
+                glVertex3f (5, 10, 0.0);
+                glVertex3f (0, 10, 0.0);
             }
-            glEnd(); 
+            glEnd();
             glColor3f(0,0,0);
             drawString(10, 10, 0.0, "Clique SPACE para inicar o Jogo");
-        }   
+        }
         glPopMatrix();
     } else {
         glPushMatrix();
@@ -152,22 +156,22 @@ void display( void )
         }
         glPopMatrix();
     }
-	glutSwapBuffers();
+    glutSwapBuffers();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     cout << "Programa OpenGL" << endl;
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(500, 500);
     glutCreateWindow("Game - SPACE WARSHIP");
     init();
     glutDisplayFunc(display);
     glutIdleFunc(animate);
-    glutReshapeFunc (reshape);
+    glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
 
     // inicia o tratamento dos eventos

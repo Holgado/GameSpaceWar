@@ -1,4 +1,4 @@
-CC=g++
+CC=g++ -O3
 
 OBJECTS= main.cpp
 
