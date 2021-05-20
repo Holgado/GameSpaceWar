@@ -18,13 +18,13 @@ using namespace std;
 class Instancia {
     //Poligono *modelo;
 private:    
-    MatrixDrawning drawning;
+    MatrixDrawning* drawning;
 public:
     Ponto Posicao, Escala, Direcao, Velocidade;
     float rotacao;
     int modelo;     // 1 = hero // 2 = alien // 3 = building // 4 = house
-    void setMatrixDrawning(MatrixDrawning _drawning);
-    MatrixDrawning getDrawning();
+    void setMatrixDrawning(MatrixDrawning* _drawning);
+    MatrixDrawning* getDrawning();
     void desenha();
 };
 

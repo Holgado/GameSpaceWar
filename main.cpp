@@ -34,19 +34,22 @@ using namespace std;
 
 // Includes
 #include "Temporizador.h"
-#include "Instancia.h"
 #include "matrixdrawning.h"
+#include "Instancia.h"
+
 
 // Definitions
 Temporizador Timer;
-Instancia elements;
-MatrixDrawning matrixDraw;
+MatrixDrawning *matrixDraw = new MatrixDrawning();
+Instancia* elements = new Instancia();
+
 // functions
 
 void init()
 {
-    matrixDraw.readSketch("hero-spaceship.txt");
-    elements.setMatrixDrawning(matrixDraw);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    matrixDraw->readSketch("hero-spaceship.txt");
+    elements->setMatrixDrawning(matrixDraw);
 }
 double nFrames = 0;
 double AccumDeltaT = 0;
@@ -136,13 +139,7 @@ void display(void)
         glPushMatrix();
         {
             glColor3f(0,0,0.2);
-            glBegin(GL_POLYGON);
-            {
-                glVertex3f (0, 0, 0.0);
-                glVertex3f (5, 0, 0.0);
-                glVertex3f (5, 10, 0.0);
-                glVertex3f (0, 10, 0.0);
-            }
+            elements->desenha();
             glEnd();
             glColor3f(0,0,0);
             drawString(10, 10, 0.0, "Clique SPACE para inicar o Jogo");

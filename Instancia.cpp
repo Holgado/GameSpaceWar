@@ -53,20 +53,21 @@ void Instancia::desenha()
     glPushMatrix();
     glTranslatef(Posicao.x, Posicao.y, 0);
     glRotatef(rotacao, 0, 0, 1);
+    glScalef(0.5, 0.5, 0);
     Ponto PosicaoDoPersonagem;
     Ponto Origem (0,0,0);
     InstanciaPonto(Origem, PosicaoDoPersonagem);
     //PosicaoDoPersonagem.imprime(); cout << endl;
-    
+    drawning->drawModel(PosicaoDoPersonagem);
     //DesenhaPersonagem();
     glPopMatrix();
 }
 
-void Instancia::setMatrixDrawning(MatrixDrawning _drawning) {
-    drawning = _drawning;
+void Instancia::setMatrixDrawning(MatrixDrawning* _drawning) {
+    this->drawning = _drawning;
 }
 
-MatrixDrawning Instancia::getDrawning() {
+MatrixDrawning* Instancia::getDrawning() {
     return drawning;
 }
 

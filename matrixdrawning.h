@@ -8,6 +8,12 @@
 #include <iomanip>
 using namespace std;
 
+#include "Ponto.h"
+
+#ifdef __linux__
+#include <GL/glut.h>
+#endif
+
 class ColorsRGB {
 public:
     int r,g,b;
@@ -57,14 +63,15 @@ public:
             lineNumber ++;
         }
     }
-    void drawModel(float x, float y) {
+    void drawModel(Ponto pos) {
         // le a matrix de cores e de numeros e desenhas pixels na posicao
         int colorvalue;
         for (int i = 0; i < maxrow; i++) {
             for (int j = 0; j < maxcol; j++) {
                 colorvalue = M[i][j];
                 glColor3f(mat[colorvalue].r, mat[colorvalue].g, mat[colorvalue].b);
-                drawPixelRet(i, j, x, y);
+                drawPixelRet(i, j, pos.x, pos.y);
+                
             }
             
         }
@@ -81,17 +88,20 @@ private:
         }
         return tokens;
     }
-    void drawPixelRet(int row, int col, float x, float y) {
+    void drawPixelRet(int row, int col, int x, int y) {
         x = x + row;
         y = y + col;
+        glPushMatrix();
+        glTranslatef(x, y, 0);
         glBegin(GL_POLYGON); 
         {   
-            glVertex3f (x, y, 0.0);
-            glVertex3f (x+0.5, y, 0.0);
-            glVertex3f (x+.5, y+0.5, 0.0);
-            glVertex3f (x, y+0.5, 0.0);
+            glVertex3f (0, 0, 0.0);
+            glVertex3f (1, 0, 0.0);
+            glVertex3f (1, 1, 0.0);
+            glVertex3f (0, 1, 0.0);
         }
         glEnd(); 
+        glPopMatrix();
     }
 };
 #endif
