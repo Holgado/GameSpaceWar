@@ -9,11 +9,15 @@
 #include "Instancia.h"
 using namespace std;
 
-class SpaceShip : Instancia {
+class SpaceShip : public Instancia {
 private:
     int life;
-    float angle;
+    float aimingAngle;
 public: 
+    SpaceShip(Modelos a) : Instancia() {
+        tipo = a;
+    }
+
     void setLife(int value) {
         life = value;
     }
@@ -33,5 +37,6 @@ public:
     float getAimingAngle() {
         return aimingAngle;
     }
+
 };
 #endif

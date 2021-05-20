@@ -36,20 +36,52 @@ using namespace std;
 #include "Temporizador.h"
 #include "matrixdrawning.h"
 #include "Instancia.h"
-
+#include "spaceship.h"
 
 // Definitions
 Temporizador Timer;
-MatrixDrawning *matrixDraw = new MatrixDrawning();
-Instancia* elements = new Instancia();
+MatrixDrawning *matrixDrawHero = new MatrixDrawning();
+MatrixDrawning *matrixDrawAlien = new MatrixDrawning();
+MatrixDrawning *matrixDrawBuilding = new MatrixDrawning();
+MatrixDrawning *matrixDrawHouse = new MatrixDrawning();
 
+Instancia building = Instancia(BUILD);
+Instancia house = Instancia(HOUSE);
+
+SpaceShip heroSpaceship = SpaceShip(HERO);
+SpaceShip* alienSpaceships[20];
+
+Ponto Max, Min;
+
+int tempo = 0;
+bool startgame = false;
+double dt;
+float TempoDaAnimacao;
 // functions
+
+void AnimateAndUpdateCharacters(double dt) {
+
+}
 
 void init()
 {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    matrixDraw->readSketch("hero-spaceship.txt");
-    elements->setMatrixDrawning(matrixDraw);
+    // Lendo os arquivos txt de cada obejto
+    matrixDrawHero->readSketch("hero-spaceship.txt");
+    matrixDrawAlien->readSketch("alien-spaceship.txt");
+    matrixDrawBuilding->readSketch("building.txt");
+    matrixDrawHouse->readSketch("house.txt"); 
+    // inicializando os objetos
+    heroSpaceship.setMatrixDrawning(matrixDrawHero);
+    building.setMatrixDrawning(matrixDrawBuilding);
+    house.setMatrixDrawning(matrixDrawHouse);
+    // Configuracao inicial
+    Min = Ponto (0, 50);
+    Max = Ponto (50, 50);
+
+    heroSpaceship.setPosicao(Ponto(10,10));
+    house.setPosicao(Ponto(10,0));
+    tempo = 25;
 }
 double nFrames = 0;
 double AccumDeltaT = 0;
@@ -57,7 +89,7 @@ double TempoTotal = 0;
 // **********************************************************************
 //
 // **********************************************************************
-double dt;
+
 void animate()
 {
     dt = Timer.getDeltaT();
@@ -78,6 +110,12 @@ void animate()
         TempoTotal = 0;
         nFrames = 0;
     }
+
+    if (startgame)
+    {
+        AnimateAndUpdateCharacters(dt);
+        TempoDaAnimacao += dt;
+    }
 }
 
 void reshape(int w, int h)
@@ -90,7 +128,7 @@ void reshape(int w, int h)
     glLoadIdentity();
 }
 
-bool startgame = false;
+
 void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
@@ -99,16 +137,16 @@ void keyboard(unsigned char key, int x, int y)
         exit(0); // a tecla ESC for pressionada
         break;
     case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
-        //heroSpaceShip.aimingLeft();
+        
         break;
     case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
-        //heroSpaceShip.aimingRight();
+        
         break;
     case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
-        //heroSpaceShip.moveLeft();
+        
         break;
     case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
-        //heroSpaceShip.moveRight();
+        
         break;
     case 32: // Tecla SPACE de tiro e start
         startgame = true;
@@ -139,7 +177,9 @@ void display(void)
         glPushMatrix();
         {
             glColor3f(0,0,0.2);
-            elements->desenha();
+            heroSpaceship.desenha();
+            building.desenha();
+            house.desenha();
             glEnd();
             glColor3f(0,0,0);
             drawString(10, 10, 0.0, "Clique SPACE para inicar o Jogo");

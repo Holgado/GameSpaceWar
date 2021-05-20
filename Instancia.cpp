@@ -11,6 +11,84 @@
 
 void DesenhaPersonagem();
 void DesenhaRetangulo();
+void InstanciaPonto(Ponto &p, Ponto &out);
+Ponto InstanciaPonto(Ponto P);
+
+Instancia::Instancia(Modelos _tipo) {
+    tipo = _tipo;
+}
+
+/*****************************************************************/
+// Geters and Seters
+void Instancia::setMatrixDrawning(MatrixDrawning* _drawning) {
+    this->drawning = _drawning;
+}
+
+MatrixDrawning* Instancia::getDrawning() {
+    return drawning;
+}
+
+Modelos Instancia::getTipo(){
+    return tipo;
+}
+    
+void Instancia::setPosicao(Ponto posicao) {
+    Posicao = posicao;
+}
+Ponto Instancia::getPosicao() {
+    return Posicao;
+}
+void Instancia::setEscala(Ponto escala) {
+    Escala = escala;
+}
+Ponto Instancia::getEscala() {
+    return Escala;
+}
+void Instancia::setDirecao(Ponto direcao) {
+    Direcao = direcao;
+}
+Ponto Instancia::getDirecao() {
+    return Direcao;
+}
+void Instancia::setVelocidade(Ponto velocidade) {
+    Velocidade = velocidade;
+}
+Ponto Instancia::getVelocidade() {
+    return Velocidade;
+}
+void Instancia::setRotacao(float _rotacao) {
+    rotacao = _rotacao;
+}
+float Instancia::getRotacao() {
+    return rotacao;
+}
+/*****************************************************************/
+// Draw functions
+void Instancia::desenha()
+{
+    // aplica as transformacoes geometricas no modelo
+    // desenha a geometria do objeto
+    
+    glPushMatrix();
+    glTranslatef(Posicao.x, Posicao.y, 0);
+    glRotatef(rotacao, 0, 0, 1);
+    
+    if (tipo == ALIEN || tipo == HERO) {
+        glScalef(0.5, 0.5, 0);
+    }
+    else {
+        glScalef(1.5, 1.5, 0);
+    }
+    
+    Ponto PosicaoDoPersonagem;
+    Ponto Origem (0,0,0);
+    InstanciaPonto(Origem, PosicaoDoPersonagem);
+    //PosicaoDoPersonagem.imprime(); cout << endl;
+    drawning->drawModel(PosicaoDoPersonagem);
+    //DesenhaPersonagem();
+    glPopMatrix();
+}
+
 // ***********************************************************
 //  void InstanciaPonto(Ponto3D *p, Ponto3D *out)
 //  Esta funcao calcula as coordenadas de um ponto no
@@ -43,31 +121,5 @@ Ponto InstanciaPonto(Ponto P)
     Ponto temp;
     InstanciaPonto(P, temp);
     return temp;
-}
-
-void Instancia::desenha()
-{
-    // aplica as transformacoes geometricas no modelo
-    // desenha a geometria do objeto
-    
-    glPushMatrix();
-    glTranslatef(Posicao.x, Posicao.y, 0);
-    glRotatef(rotacao, 0, 0, 1);
-    glScalef(0.5, 0.5, 0);
-    Ponto PosicaoDoPersonagem;
-    Ponto Origem (0,0,0);
-    InstanciaPonto(Origem, PosicaoDoPersonagem);
-    //PosicaoDoPersonagem.imprime(); cout << endl;
-    drawning->drawModel(PosicaoDoPersonagem);
-    //DesenhaPersonagem();
-    glPopMatrix();
-}
-
-void Instancia::setMatrixDrawning(MatrixDrawning* _drawning) {
-    this->drawning = _drawning;
-}
-
-MatrixDrawning* Instancia::getDrawning() {
-    return drawning;
 }
 

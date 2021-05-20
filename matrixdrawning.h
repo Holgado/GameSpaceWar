@@ -16,7 +16,7 @@ using namespace std;
 
 class ColorsRGB {
 public:
-    int r,g,b;
+    float r,g,b;
     void imprime()
     {
         cout << "Cor: " << setw(4) << g << setw(4) << r << setw(4) << b;
