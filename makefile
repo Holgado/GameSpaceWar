@@ -1,6 +1,6 @@
 CC=g++ -O3
 
-OBJECTS= main.cpp Ponto.cpp Instancia.cpp
+OBJECTS= *.cpp SOIL/*.cpp
 
 LDLIBS=-lglut -lGLU -lGL -lstdc++
 

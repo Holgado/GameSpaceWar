@@ -37,30 +37,87 @@ using namespace std;
 #include "matrixdrawning.h"
 #include "Instancia.h"
 #include "spaceship.h"
-
+#include "SOIL/SOIL.h"
+#include "TextureClass.h"
 // Definitions
+#define NUM_ALIENS 50
+#define NUM_BUILDINGS 4
+#define NUM_HOUSES 3
+
 Temporizador Timer;
 MatrixDrawning *matrixDrawHero = new MatrixDrawning();
 MatrixDrawning *matrixDrawAlien = new MatrixDrawning();
 MatrixDrawning *matrixDrawBuilding = new MatrixDrawning();
 MatrixDrawning *matrixDrawHouse = new MatrixDrawning();
 
-Instancia building = Instancia(BUILD);
-Instancia house = Instancia(HOUSE);
+Instancia building[NUM_BUILDINGS];
+Instancia house[NUM_HOUSES];
+SpaceShip alienSpaceships[NUM_ALIENS];
 
 SpaceShip heroSpaceship = SpaceShip(HERO);
-SpaceShip* alienSpaceships[20];
+GLuint BackTex;
 
 Ponto Max, Min;
 
-int tempo = 0;
+int tempo = 5;
 bool startgame = false;
-double dt;
 float TempoDaAnimacao;
 // functions
 
-void AnimateAndUpdateCharacters(double dt) {
+void initBackGroundTex (void) {
+    BackTex = LoadTexture("background.jpg");
+}
 
+void AnimateAndUpdateCharacters(double dt) {
+    Ponto Deslocamento; 
+    Deslocamento.x = dt * heroSpaceship.getVelocidade().x * heroSpaceship.getDirecao().x;
+    Deslocamento.y = dt * heroSpaceship.getVelocidade().y * heroSpaceship.getDirecao().y;
+    Ponto Soma = Ponto(heroSpaceship.getPosicao().x + Deslocamento.x, heroSpaceship.getPosicao().y + Deslocamento.y);
+    heroSpaceship.setPosicao(Soma);
+}
+void DrawAllTheCity() {
+    int cntbuilding = 0, cnthouse = 0;
+    int nextposdraw;
+    house[0].setPosicao(Ponto(10,0));
+    house[0].desenha();
+    for (int i = 0; i < NUM_BUILDINGS+NUM_HOUSES; i++) {
+        if (i % 2 == 0) {
+            if (cntbuilding < NUM_BUILDINGS) {
+                building[cntbuilding].setPosicao(Ponto(nextposdraw, 0));
+                building[cntbuilding].desenha();
+                nextposdraw = building[cntbuilding].getDrawning()->maxcol;
+                cntbuilding++;
+            }
+        } else {
+            if (cnthouse < NUM_HOUSES) {
+                house[cnthouse].setPosicao(Ponto(nextposdraw, 0));
+                house[cnthouse].desenha();
+                nextposdraw = house[cnthouse].getDrawning()->maxcol;
+                cnthouse++;
+            }
+        } 
+    }
+}
+void InitializeCharacters() {
+    int i;
+    heroSpaceship.setMatrixDrawning(matrixDrawHero);
+    heroSpaceship.setPosicao(Ponto(20,15));
+
+    // Incializa os ojetos da cidade
+    for (i = 0; i < NUM_BUILDINGS; i++) {
+        building[i] = Instancia(BUILD);
+        building[i].setMatrixDrawning(matrixDrawBuilding);
+    }
+    for (i = 0; i < NUM_HOUSES; i++) {
+        house[i] = Instancia(HOUSE);
+        house[i].setMatrixDrawning(matrixDrawHouse);
+    }
+    // Incializa as naves alienigenas
+    for (i = 0; i < NUM_ALIENS; i++) {    
+        alienSpaceships[i] = SpaceShip(ALIEN);
+        alienSpaceships[i].setMatrixDrawning(matrixDrawAlien);
+    }
+    
 }
 
 void init()
@@ -72,15 +129,8 @@ void init()
     matrixDrawBuilding->readSketch("building.txt");
     matrixDrawHouse->readSketch("house.txt"); 
     // inicializando os objetos
-    heroSpaceship.setMatrixDrawning(matrixDrawHero);
-    building.setMatrixDrawning(matrixDrawBuilding);
-    house.setMatrixDrawning(matrixDrawHouse);
-    // Configuracao inicial
-    Min = Ponto (0, 50);
-    Max = Ponto (50, 50);
-
-    heroSpaceship.setPosicao(Ponto(10,10));
-    house.setPosicao(Ponto(10,0));
+    
+    InitializeCharacters();
     tempo = 25;
 }
 double nFrames = 0;
@@ -92,6 +142,7 @@ double TempoTotal = 0;
 
 void animate()
 {
+    double dt;
     dt = Timer.getDeltaT();
     AccumDeltaT += dt;
     TempoTotal += dt;
@@ -110,12 +161,9 @@ void animate()
         TempoTotal = 0;
         nFrames = 0;
     }
-
-    if (startgame)
-    {
-        AnimateAndUpdateCharacters(dt);
-        TempoDaAnimacao += dt;
-    }
+    AnimateAndUpdateCharacters(dt);
+    TempoDaAnimacao += dt;
+    
 }
 
 void reshape(int w, int h)
@@ -123,7 +171,7 @@ void reshape(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glViewport(0, 0, w, h);      // janela de exibicao
-    glOrtho(0, 50, 0, 50, 0, 1); // Janela de selecao
+    glOrtho(0, 100, 0, 100, 0, 1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -136,23 +184,34 @@ void keyboard(unsigned char key, int x, int y)
     case 27:
         exit(0); // a tecla ESC for pressionada
         break;
-    case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
-        
-        break;
-    case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
-        
-        break;
-    case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
-        
-        break;
-    case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
-        
-        break;
     case 32: // Tecla SPACE de tiro e start
         startgame = true;
         break;
     default:
         break;
+    }
+}
+
+void arrow_keys ( int a_keys, int x, int y )
+{
+	switch ( a_keys )
+	{
+        case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
+            heroSpaceship.setAimingAngle(heroSpaceship.getAimingAngle() + 1);
+            break;
+        case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
+            heroSpaceship.setAimingAngle(heroSpaceship.getAimingAngle() - 1);
+            break;
+        case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x + 1, heroSpaceship.getPosicao().y));
+            heroSpaceship.setDirecao(Ponto(1, 0));
+            break;
+        case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x - 1, heroSpaceship.getPosicao().y));
+            heroSpaceship.setDirecao(Ponto(-1, 0));
+            break;
+        default:
+            break;
     }
 }
 // Fuction to write in the screen
@@ -165,7 +224,18 @@ void drawString(float x, float y, float z, string str)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *it); // Updates the position
     }
 }
-
+void drawRetBackGround() {
+    glBegin ( GL_QUADS );
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(100.0f, 0.0f);
+    glVertex2f( 1.0f, -1.0f);
+    glTexCoord2f(100.0f, 100.0f);
+    glVertex2f( 1.0f,  1.0f);
+    glTexCoord2f(0.0f, 100.0f);
+    glVertex2f(-1.0f,  1.0f);
+    glEnd();
+}
 
 void display(void)
 {
@@ -178,18 +248,20 @@ void display(void)
         {
             glColor3f(0,0,0.2);
             heroSpaceship.desenha();
-            building.desenha();
-            house.desenha();
+            DrawAllTheCity();
             glEnd();
             glColor3f(0,0,0);
-            drawString(10, 10, 0.0, "Clique SPACE para inicar o Jogo");
+            drawString(10, 40, 0.0, "Clique SPACE para inicar o Jogo");
         }
         glPopMatrix();
     } else {
         glPushMatrix();
         {
-            glClear(GL_COLOR_BUFFER_BIT);
-
+            //glClear(GL_COLOR_BUFFER_BIT);
+            glTranslatef ( 0.0f, 0.0f, 1.0f );
+            glBindTexture(GL_TEXTURE_2D, BackTex);
+            drawRetBackGround();
+    
         }
         glPopMatrix();
     }
@@ -210,7 +282,7 @@ int main(int argc, char **argv)
     glutIdleFunc(animate);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
-
+    glutSpecialFunc ( arrow_keys );
     // inicia o tratamento dos eventos
     glutMainLoop();
 

@@ -26,7 +26,7 @@ protected:
     MatrixDrawning* drawning;
     Modelos tipo;
     Ponto Posicao, Escala, Direcao, Velocidade;
-    float rotacao;     
+    float rotacao;    
 public:
     Instancia() {}
     Instancia(Modelos tipo);

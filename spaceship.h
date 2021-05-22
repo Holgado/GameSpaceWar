@@ -13,7 +13,10 @@ class SpaceShip : public Instancia {
 private:
     int life;
     float aimingAngle;
+    bool animando; 
 public: 
+    SpaceShip(){}
+
     SpaceShip(Modelos a) : Instancia() {
         tipo = a;
     }

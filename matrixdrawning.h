@@ -54,9 +54,9 @@ public:
                 input >> row >> col;
                 maxcol = col;
                 maxrow = row;
-                for (int i = 0; i < row; i++) {
-                    for (int j = 0; j < col; j++) {
-                        input >> M[i][j];
+                for (int i = row; i > 0; i--) {
+                    for (int j = col; j > 0; j--) {
+                        input >> M[j][i];
                     }                                            
                 }
             }
@@ -66,11 +66,11 @@ public:
     void drawModel(Ponto pos) {
         // le a matrix de cores e de numeros e desenhas pixels na posicao
         int colorvalue;
-        for (int i = 0; i < maxrow; i++) {
-            for (int j = 0; j < maxcol; j++) {
-                colorvalue = M[i][j];
+        for (int i = maxrow; i > 0; i--) {
+            for (int j = maxcol; j > 0; j--) {
+                colorvalue = M[j][i];
                 glColor3f(mat[colorvalue].r, mat[colorvalue].g, mat[colorvalue].b);
-                drawPixelRet(i, j, pos.x, pos.y);
+                drawPixelRet(j, i, pos.x, pos.y);
                 
             }
             

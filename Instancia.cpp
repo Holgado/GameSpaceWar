@@ -33,13 +33,28 @@ Modelos Instancia::getTipo(){
 }
     
 void Instancia::setPosicao(Ponto posicao) {
-    Posicao = posicao;
+    if(tipo == HERO) {
+        if (posicao.x < 0) {
+            Posicao.x = 0;
+        }
+        else if (posicao.x > 100) {
+            Posicao.x = 100;
+        }
+        else {
+            Posicao.x = posicao.x;
+        }
+        Posicao.y = posicao.y;
+    } else {
+        Posicao.x = posicao.x;
+        Posicao.y = posicao.y;
+    }
 }
 Ponto Instancia::getPosicao() {
     return Posicao;
 }
 void Instancia::setEscala(Ponto escala) {
-    Escala = escala;
+    Escala.x = escala.x;
+    Escala.y = escala.y;
 }
 Ponto Instancia::getEscala() {
     return Escala;
@@ -72,20 +87,23 @@ void Instancia::desenha()
     glPushMatrix();
     glTranslatef(Posicao.x, Posicao.y, 0);
     glRotatef(rotacao, 0, 0, 1);
-    
+
     if (tipo == ALIEN || tipo == HERO) {
-        glScalef(0.5, 0.5, 0);
+        glScalef(0.40, 0.40, 0);
     }
+    else if (tipo == HOUSE) {
+        glScalef(0.5, 0.5, 0);
+    } 
     else {
         glScalef(1.5, 1.5, 0);
     }
     
-    Ponto PosicaoDoPersonagem;
-    Ponto Origem (0,0,0);
-    InstanciaPonto(Origem, PosicaoDoPersonagem);
-    //PosicaoDoPersonagem.imprime(); cout << endl;
-    drawning->drawModel(PosicaoDoPersonagem);
-    //DesenhaPersonagem();
+    //Ponto PosicaoDoPersonagem;
+    //Ponto Origem (0,0,0);
+    //InstanciaPonto(Origem, PosicaoDoPersonagem);
+
+    drawning->drawModel(Posicao);
+
     glPopMatrix();
 }
 
