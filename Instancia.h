@@ -17,7 +17,8 @@ enum Modelos {
     HERO,
     ALIEN,
     BUILD,
-    HOUSE
+    HOUSE,
+    BULLET
 };
 
 class Instancia {

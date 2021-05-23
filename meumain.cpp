@@ -40,7 +40,7 @@ using namespace std;
 #include "SOIL/SOIL.h"
 #include "TextureClass.h"
 // Definitions
-#define NUM_ALIENS 50
+#define NUM_ALIENS 10
 #define NUM_BUILDINGS 4
 #define NUM_HOUSES 3
 #define WIDTH 100
@@ -51,11 +51,13 @@ MatrixDrawning *matrixDrawHero = new MatrixDrawning();
 MatrixDrawning *matrixDrawAlien = new MatrixDrawning();
 MatrixDrawning *matrixDrawBuilding = new MatrixDrawning();
 MatrixDrawning *matrixDrawHouse = new MatrixDrawning();
+MatrixDrawning *matrixDrawBullet = new MatrixDrawning();
 
 Instancia building[NUM_BUILDINGS];
 Instancia house[NUM_HOUSES];
 SpaceShip alienSpaceships[NUM_ALIENS];
 SpaceShip heroSpaceship;
+Instancia bullet;
 
 GLuint BackTex;
 
@@ -64,11 +66,14 @@ Ponto Max, Min;
 int tempo = 5;
 bool startgame = false;
 float TempoDaAnimacao;
+bool way = false;
 GLfloat AspectRatio, AngY=0;
 // **********************************************************************
 //  Functions
 // **********************************************************************
 void DrawAllTheCity();
+void DefinesBezierCurves(bool);
+
 void initBackGroundTex (void) {
     BackTex = LoadTexture("background.jpg");
 }
@@ -92,22 +97,26 @@ Ponto CalculaBezier3(Ponto PC[], double t)
     P =  PC[0] * UmMenosT * UmMenosT + PC[1] * 2 * UmMenosT * t + PC[2] * t*t;
     return P;
 }
+void shotBullet() {
+
+    bullet.setMoving(true);
+
+
+    cout << "PRINT" << endl;
+    bullet.desenha();
+}
 void AvancaComBezier()
 {
     double t;
     t = TempoDaAnimacao/tempo;
     Ponto pontosBz[3];
-    if (t>1.0) {
-        for (int i = 0; i < NUM_ALIENS; i++) {
-            pontosBz[0] = alienSpaceships[i].pontosBezier[0];
-            pontosBz[1] = alienSpaceships[i].pontosBezier[1];
-            pontosBz[2] = alienSpaceships[i].pontosBezier[2];
-
-            alienSpaceships[i].pontosBezier[0] = pontosBz[2];
-            alienSpaceships[i].pontosBezier[1] = pontosBz[1];
-            alienSpaceships[i].pontosBezier[2] = pontosBz[0];
-        }
+    if (t > 1.0) {
+        DefinesBezierCurves(way);
+        TempoDaAnimacao = 0;
+        way = !way;
+        cout << "WAY " << way << "!WAY " << !way << endl;
     }
+
     for (int i = 0; i < NUM_ALIENS; i++) {
         alienSpaceships[i].setPosicao(CalculaBezier3(alienSpaceships[i].pontosBezier,t));
     }
@@ -161,6 +170,37 @@ void DrawAllAlienSpaceShips () {
     }
 }
 
+void DefinesBezierCurves(bool curveDireciton) {
+    int cont = 0;
+    float spacesize = alienSpaceships[0].getDrawning()->maxcol * 0.40;
+    if (curveDireciton == true) {
+        for (int i = 0;i < NUM_ALIENS; i++) { 
+            if (cont < 5) {    
+                alienSpaceships[i].pontosBezier[0] = Ponto(cont*10+spacesize, 30);
+                alienSpaceships[i].pontosBezier[1] = Ponto((cont*10)+spacesize + 3, 40);
+                alienSpaceships[i].pontosBezier[2] = Ponto((cont*10)+spacesize + 6, 30);
+                cont++;
+            }
+            else {
+                cont = 0;
+            }
+        }
+    } else {
+
+        for (int i = 0;i < NUM_ALIENS; i++) { 
+            if (cont < 5) {              
+                alienSpaceships[i].pontosBezier[0] = Ponto(alienSpaceships[i].pontosBezier[2].x, 30);
+                alienSpaceships[i].pontosBezier[1] = Ponto(alienSpaceships[i].pontosBezier[1].x - 3, 40);
+                alienSpaceships[i].pontosBezier[2] = Ponto(alienSpaceships[i].pontosBezier[0].x - 6, 30);
+                cont++;
+            }
+            else {
+                cont = 0;
+            }
+        }
+    }
+}
+
 void InitializeCharacters() {
     int i, cont = 0; tempo = 25;
     Min = Ponto (0, 0);
@@ -169,7 +209,7 @@ void InitializeCharacters() {
     // Inicializa nave o heroi
     heroSpaceship = SpaceShip(HERO);
     heroSpaceship.setMatrixDrawning(matrixDrawHero);
-    heroSpaceship.setPosicao(Ponto(20,30));         // Posicao inicial do heroi
+    heroSpaceship.setPosicao(Ponto(20,20));         // Posicao inicial do heroi
     heroSpaceship.setEscala(Ponto(0.4, 0.4));
 
     // Incializa os ojetos da cidade
@@ -188,25 +228,18 @@ void InitializeCharacters() {
         alienSpaceships[i] = SpaceShip(ALIEN);
         if (i < 5) {
             alienSpaceships[i].setMoving(true);                     // Inicializa 5 naves
+        } else {
+            alienSpaceships[i].setMoving(false);                    
         }
         alienSpaceships[i].setRotacao(180);
         alienSpaceships[i].setMatrixDrawning(matrixDrawAlien);
         alienSpaceships[i].setEscala(Ponto(0.4, 0.4));
         alienSpaceships[i].setVelocidade(Ponto((Max.x - Min.x)/tempo,(Max.y - Min.y)/tempo));
     }
-
-    cont = 0;
-    for (i = 0;i < NUM_ALIENS; i++) { 
-        if (cont < 5) {    
-            alienSpaceships[i].pontosBezier[0] = Ponto(cont*10, 30);
-            alienSpaceships[i].pontosBezier[1] = Ponto((cont*10) + 3, 40);
-            alienSpaceships[i].pontosBezier[2] = Ponto((cont*10) + 6, 30);
-            cont++;
-        }
-        else {
-            cont = 0;
-        }
-    }
+    DefinesBezierCurves(true);
+    // Projeteis
+    bullet = Instancia(BULLET);
+    bullet.setMatrixDrawning(matrixDrawBullet);
 }
 // **********************************************************************
 // OpenGL Functions
@@ -220,6 +253,7 @@ void init()
     matrixDrawAlien->readSketch("alien-spaceship.txt");
     matrixDrawBuilding->readSketch("building.txt");
     matrixDrawHouse->readSketch("house.txt"); 
+    matrixDrawBullet->readSketch("bullet.txt");
     // inicializando os objetos
     
     InitializeCharacters();
@@ -268,7 +302,8 @@ void reshape(int w, int h)
     PosicUser();
 }
 
-
+bool shotFlag;
+float var1, var2;
 void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
@@ -276,8 +311,15 @@ void keyboard(unsigned char key, int x, int y)
     case 27:
         exit(0); // a tecla ESC for pressionada
         break;
-    case 32: // Tecla SPACE de tiro e start
-        startgame = true;
+    case 32: // Tecla de tiro e start
+        var1 = heroSpaceship.getPosicao().x;
+        var2 = heroSpaceship.getPosicao().x+16;
+        bullet.setPosicao();
+        bullet.setRotacao(heroSpaceship.getRotacao());
+        bullet.setDirecao(Ponto(1, 1));
+        bullet.setEscala(Ponto(0.2,0.2));
+
+        shotFlag = true;
         break;
     default:
         break;
@@ -288,21 +330,21 @@ void arrow_keys ( int a_keys, int x, int y )
 {
 	switch ( a_keys )
 	{
-        case GLUT_KEY_UP: // movimenta a mira da nave do heroi no sentido horario
-            heroSpaceship.setAimingAngle(heroSpaceship.getAimingAngle() + 1);
+        case GLUT_KEY_UP: // movimenta para cima
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x, heroSpaceship.getPosicao().y + 1));
+            heroSpaceship.setRotacao(0);
             break;
-        case GLUT_KEY_DOWN: // movimenta a mira da nave do heroi no sentido antihorario
-            heroSpaceship.setAimingAngle(heroSpaceship.getAimingAngle() - 1);
+        case GLUT_KEY_DOWN: // movimenta para baixo
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x, heroSpaceship.getPosicao().y - 1));
+            heroSpaceship.setRotacao(0);
             break;
         case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x + 1, heroSpaceship.getPosicao().y));
             heroSpaceship.setRotacao(-10);
-            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x + 5, heroSpaceship.getPosicao().y));
-            heroSpaceship.setDirecao(Ponto(1, 0));
             break;
         case GLUT_KEY_LEFT: // movimenta a nave do heroi para esquerda
+            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x - 1, heroSpaceship.getPosicao().y));
             heroSpaceship.setRotacao(10);
-            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x - 5, heroSpaceship.getPosicao().y));
-            heroSpaceship.setDirecao(Ponto(-1, 0));
             break;
         default:
             break;
@@ -351,8 +393,13 @@ void display(void)
     glOrtho(0, WIDTH, 0, HEIGTH, 0, 1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    heroSpaceship.desenha();
     DrawAllTheCity();
+    heroSpaceship.desenha();
+    if (shotFlag) {
+        shotBullet();
+    } else {
+        shotFlag = false;
+    }
     DrawAllAlienSpaceShips();
     glutSwapBuffers();
 }
