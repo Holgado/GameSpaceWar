@@ -26,7 +26,8 @@ protected:
     MatrixDrawning* drawning;
     Modelos tipo;
     Ponto Posicao, Escala, Direcao, Velocidade;
-    float rotacao;    
+    float rotacao;
+    bool moving = false;    
 public:
     Instancia() {}
     Instancia(Modelos tipo);
@@ -45,6 +46,8 @@ public:
     Ponto getVelocidade();
     void setRotacao(float);
     float getRotacao();
+    void setMoving(bool);
+    bool getMoving();
 
     void desenha();
 };

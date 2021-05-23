@@ -2,7 +2,7 @@ CC=g++ -O3
 
 OBJECTS= *.cpp SOIL/*.cpp
 
-LDLIBS=-lglut -lGLU -lGL -lstdc++
+LDLIBS=-lglut -lGLU -lGL -lstdc++ -w
 
 all: clean program
 

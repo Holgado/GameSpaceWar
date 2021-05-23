@@ -70,7 +70,8 @@ public:
             for (int j = maxcol; j > 0; j--) {
                 colorvalue = M[j][i];
                 glColor3f(mat[colorvalue].r, mat[colorvalue].g, mat[colorvalue].b);
-                drawPixelRet(j, i, pos.x, pos.y);
+                if (colorvalue != 4) 
+                    drawPixelRet(j, i, pos.x, pos.y);
                 
             }
             
