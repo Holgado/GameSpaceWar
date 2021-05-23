@@ -91,34 +91,18 @@ void Instancia::desenha()
     // desenha a geometria do objeto
 
     glPushMatrix();
-    
+
     if (tipo == ALIEN) {
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1);
         glTranslatef(-Posicao.x, -Posicao.y, 0);
-    //} 
-    //else if (tipo == HERO) {
-    //    glTranslatef(Posicao.x, Posicao.y, 0);
-    //    glRotatef(rotacao, 0, 0, 1);
-    //    glTranslatef(Posicao.x, Posicao.y, 0);
-    } else {
+    } 
+    else {
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1);
     }
+    glScalef(Escala.x, Escala.y, 0);
 
-    if (tipo == ALIEN || tipo == HERO) {
-        glScalef(0.40, 0.40, 0);
-    }
-    else if (tipo == HOUSE) {
-        glScalef(0.8, 0.8, 0);
-    } 
-    else {
-        glScalef(1.5, 1.5, 0);
-    }
-    
-    //Ponto PosicaoDoPersonagem;
-    //Ponto Origem (0,0,0);
-    //InstanciaPonto(Origem, PosicaoDoPersonagem);
 
     drawning->drawModel(Posicao);
     glPopMatrix();

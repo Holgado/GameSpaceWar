@@ -92,7 +92,26 @@ Ponto CalculaBezier3(Ponto PC[], double t)
     P =  PC[0] * UmMenosT * UmMenosT + PC[1] * 2 * UmMenosT * t + PC[2] * t*t;
     return P;
 }
+void AvancaComBezier()
+{
+    double t;
+    t = TempoDaAnimacao/tempo;
+    Ponto pontosBz[3];
+    if (t>1.0) {
+        for (int i = 0; i < NUM_ALIENS; i++) {
+            pontosBz[0] = alienSpaceships[i].pontosBezier[0];
+            pontosBz[1] = alienSpaceships[i].pontosBezier[1];
+            pontosBz[2] = alienSpaceships[i].pontosBezier[2];
 
+            alienSpaceships[i].pontosBezier[0] = pontosBz[2];
+            alienSpaceships[i].pontosBezier[1] = pontosBz[1];
+            alienSpaceships[i].pontosBezier[2] = pontosBz[0];
+        }
+    }
+    for (int i = 0; i < NUM_ALIENS; i++) {
+        alienSpaceships[i].setPosicao(CalculaBezier3(alienSpaceships[i].pontosBezier,t));
+    }
+}
 void AnimateAndUpdateCharacters(double dt) {
     Ponto Deslocamento; 
     Ponto Soma;
@@ -105,18 +124,8 @@ void AnimateAndUpdateCharacters(double dt) {
     
     heroSpaceship.setPosicao(Soma);
     // ALIENS
-    double t;
-    t = TempoDaAnimacao/tempo;
-    Ponto pontosBezier[3];
-    
-    for (int i = 0;i < NUM_ALIENS; i++) {
-        if (alienSpaceships[i].getMoving()) { 
-            pontosBezier[0] = Ponto(alienSpaceships->getPosicao().x, alienSpaceships->getPosicao().y);
-            pontosBezier[1] = Ponto(alienSpaceships->getPosicao().x+3, alienSpaceships->getPosicao().y+3);
-            pontosBezier[2] = Ponto(alienSpaceships->getPosicao().x+6, alienSpaceships->getPosicao().y-3);
-            alienSpaceships[i].setPosicao(CalculaBezier3(pontosBezier,t));
-        }
-    }
+    AvancaComBezier();
+
     DrawAllTheCity();
 }
 void DrawAllTheCity() {
@@ -145,17 +154,9 @@ void DrawAllTheCity() {
     }
 }
 void DrawAllAlienSpaceShips () {
-    int cont = 10;
     for (int i = 0; i < NUM_ALIENS; i++) {   
         if (alienSpaceships[i].getMoving()) {
-            if (cont < 100) {
-                alienSpaceships[i].setPosicao(Ponto(cont,40));         // Set o setor incial
-                alienSpaceships[i].desenha();
-                cont+=10;
-            }
-            else {
-                cont = 0;
-            }
+            alienSpaceships[i].desenha();
         }
     }
 }
@@ -169,15 +170,18 @@ void InitializeCharacters() {
     heroSpaceship = SpaceShip(HERO);
     heroSpaceship.setMatrixDrawning(matrixDrawHero);
     heroSpaceship.setPosicao(Ponto(20,30));         // Posicao inicial do heroi
+    heroSpaceship.setEscala(Ponto(0.4, 0.4));
 
     // Incializa os ojetos da cidade
     for (i = 0; i < NUM_BUILDINGS; i++) {
         building[i] = Instancia(BUILD);
         building[i].setMatrixDrawning(matrixDrawBuilding);
+        building[i].setEscala(Ponto(1.5, 1.5));
     }
     for (i = 0; i < NUM_HOUSES; i++) {
         house[i] = Instancia(HOUSE);
         house[i].setMatrixDrawning(matrixDrawHouse);
+        house[i].setEscala(Ponto(0.8,0.8));
     }
     // Incializa as naves alienigenas
     for (i = 0; i < NUM_ALIENS; i++) {
@@ -187,7 +191,21 @@ void InitializeCharacters() {
         }
         alienSpaceships[i].setRotacao(180);
         alienSpaceships[i].setMatrixDrawning(matrixDrawAlien);
+        alienSpaceships[i].setEscala(Ponto(0.4, 0.4));
         alienSpaceships[i].setVelocidade(Ponto((Max.x - Min.x)/tempo,(Max.y - Min.y)/tempo));
+    }
+
+    cont = 0;
+    for (i = 0;i < NUM_ALIENS; i++) { 
+        if (cont < 5) {    
+            alienSpaceships[i].pontosBezier[0] = Ponto(cont*10, 30);
+            alienSpaceships[i].pontosBezier[1] = Ponto((cont*10) + 3, 40);
+            alienSpaceships[i].pontosBezier[2] = Ponto((cont*10) + 6, 30);
+            cont++;
+        }
+        else {
+            cont = 0;
+        }
     }
 }
 // **********************************************************************
@@ -205,7 +223,7 @@ void init()
     // inicializando os objetos
     
     InitializeCharacters();
-    tempo = 25;
+    tempo = 5;
 }
 double nFrames = 0;
 double AccumDeltaT = 0;
