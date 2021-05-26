@@ -89,20 +89,23 @@ void Instancia::desenha()
 {
     // aplica as transformacoes geometricas no modelo
     // desenha a geometria do objeto
-
+    Ponto Origem (0,0,0);
+    Ponto meuPonto = Posicao;
+    glLoadIdentity();
     glPushMatrix();
 
-    if (tipo == ALIEN) {
+    if (tipo == ALIEN || tipo == HERO) {
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1);
-        glTranslatef(-Posicao.x, -Posicao.y, 0);
+        glTranslatef(-Posicao.x, -Posicao.y, 0); 
     } 
     else {
         glTranslatef(Posicao.x, Posicao.y, 0);
-        glRotatef(rotacao, 0, 0, 1);
+        glRotatef(rotacao, 0, 0, 1); 
     }
-    glScalef(Escala.x, Escala.y, 0);
 
+    InstanciaPonto(Origem, Posicao);
+    glScalef(Escala.x, Escala.y, 0);
 
     drawning->drawModel(Posicao);
     glPopMatrix();
