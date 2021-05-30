@@ -18,10 +18,18 @@ Instancia::Instancia(Modelos _tipo) {
     tipo = _tipo;
 }
 
+void Instancia::criaEnvelope () {
+    envelope.insereVertice(Ponto(0, 0));
+    envelope.insereVertice(Ponto(0, drawning->maxrow));
+    envelope.insereVertice(Ponto(drawning->maxcol, drawning->maxrow));
+    envelope.insereVertice(Ponto(drawning->maxcol, 0));
+}
+
 /*****************************************************************/
 // Geters and Seters
 void Instancia::setMatrixDrawning(MatrixDrawning* _drawning) {
     this->drawning = _drawning;
+
 }
 
 MatrixDrawning* Instancia::getDrawning() {
@@ -33,21 +41,9 @@ Modelos Instancia::getTipo(){
 }
     
 void Instancia::setPosicao(Ponto posicao) {
-    if(tipo == HERO) {
-        if (posicao.x < 0) {
-            Posicao.x = 0;
-        }
-        else if (posicao.x > 220) {
-            Posicao.x = 220;
-        }
-        else {
-            Posicao.x = posicao.x;
-        }
-        Posicao.y = posicao.y;
-    } else {
-        Posicao.x = posicao.x;
-        Posicao.y = posicao.y;
-    }
+    Posicao.x = posicao.x;
+    Posicao.y = posicao.y;
+    envelope.atualizaLimites(posicao.x, posicao.y, posicao.x + drawning->maxcol, posicao.y + drawning->maxrow);
 }
 Ponto Instancia::getPosicao() {
     return Posicao;
@@ -85,7 +81,7 @@ bool Instancia::getMoving() {
 }
 /*****************************************************************/
 // Draw functions
-void Instancia::desenha()
+void Instancia::desenha(bool aplicatranslancao)
 {
     // aplica as transformacoes geometricas no modelo
     // desenha a geometria do objeto
@@ -94,7 +90,8 @@ void Instancia::desenha()
     glLoadIdentity();
     glPushMatrix();
 
-    if (tipo == ALIEN || tipo == HERO) {
+
+    if (tipo == ALIEN) {
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1);
         glTranslatef(-Posicao.x, -Posicao.y, 0); 
@@ -103,8 +100,9 @@ void Instancia::desenha()
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1); 
     }
-
+    
     InstanciaPonto(Origem, Posicao);
+     
     glScalef(Escala.x, Escala.y, 0);
 
     drawning->drawModel(Posicao);

@@ -13,6 +13,7 @@ using namespace std;
 
 #include "matrixdrawning.h"
 #include "Ponto.h"
+#include "PoligonoCSG.h"
 enum Modelos {
     HERO,
     ALIEN,
@@ -28,8 +29,9 @@ protected:
     Modelos tipo;
     Ponto Posicao, Escala, Direcao, Velocidade;
     float rotacao;
-    bool moving = false;    
+    bool moving = false; 
 public:
+    PoligonoCSG envelope;
     Instancia() {}
     Instancia(Modelos tipo);
 
@@ -50,7 +52,11 @@ public:
     void setMoving(bool);
     bool getMoving();
 
-    void desenha();
+    void desenhaNoPonto(Ponto pos);
+
+    void criaEnvelope ();
+
+    void desenha(bool);
 };
 
 

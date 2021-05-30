@@ -24,7 +24,7 @@ void Ponto::set(float x, float y, float z)
     this->z = z;
 }
 void Ponto::imprime() {
-    cout << "(" << x << ", " << y << ")" << flush;
+    cout << "(" << x << ", " << y << ")\n" << flush;
 }
 
 void Ponto::multiplica(double x, double y, double z)
