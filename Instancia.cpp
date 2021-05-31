@@ -81,7 +81,7 @@ bool Instancia::getMoving() {
 }
 /*****************************************************************/
 // Draw functions
-void Instancia::desenha(bool aplicatranslancao)
+void Instancia::desenha(bool aplicarotacao)
 {
     // aplica as transformacoes geometricas no modelo
     // desenha a geometria do objeto
@@ -91,7 +91,7 @@ void Instancia::desenha(bool aplicatranslancao)
     glPushMatrix();
 
 
-    if (tipo == ALIEN) {
+    if (aplicarotacao) {
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1);
         glTranslatef(-Posicao.x, -Posicao.y, 0); 
@@ -100,15 +100,32 @@ void Instancia::desenha(bool aplicatranslancao)
         glTranslatef(Posicao.x, Posicao.y, 0);
         glRotatef(rotacao, 0, 0, 1); 
     }
+
+    
+    glScalef(Escala.x, Escala.y, 0);
     
     InstanciaPonto(Origem, Posicao);
      
-    glScalef(Escala.x, Escala.y, 0);
 
     drawning->drawModel(Posicao);
     glPopMatrix();
 }
+void Instancia::desenhaNoPonto(Ponto a)
+{
+    // aplica as transformacoes geometricas no modelo
+    // desenha a geometria do objeto
+    Ponto Origem (0,0,0);
+    Ponto meuPonto = Posicao;
+    glLoadIdentity();
+    glPushMatrix();
 
+    glTranslatef(a.x, a.y, 0);
+    glRotatef(rotacao, 0, 0, 1);
+    glScalef(Escala.x, Escala.y, 0);
+
+    drawning->drawModel(a);
+    glPopMatrix();
+}
 // ***********************************************************
 //  void InstanciaPonto(Ponto3D *p, Ponto3D *out)
 //  Esta funcao calcula as coordenadas de um ponto no

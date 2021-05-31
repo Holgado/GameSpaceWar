@@ -58,6 +58,7 @@ bool PoligonoCSG::isInside(Ponto mediumPoint, Poligono toVerify)
     {
         return false; // se for par o ponto esta fora
     }
+	
     return true; // se for impar o ponto esta detro.
 }
 

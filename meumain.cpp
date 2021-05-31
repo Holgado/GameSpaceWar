@@ -116,10 +116,17 @@ void detectaColisoes() {
     }
 }
 
-void detectaColisoesNoMapa () {
+void detectaColisoesNoMapa (int index) {
     for(int i = 0;i < NUM_BUILDINGS; i++) {
-        if (building[i].envelope.isInside(alienBullet[shotIndex].getPosicao(), building[i].envelope)) {
+        if (alienBullet[index].envelope.isInside(building[i].getPosicao(), alienBullet[index].envelope)) {
             building[i].setMoving(false);
+            cout << "prediu " << i << " destruido " << endl;
+        }
+    }
+    for(int i = 0;i < NUM_HOUSES; i++) {
+        if (house[i].envelope.isInside(alienBullet[index].getPosicao(), house[i].envelope)) {
+            house[i].setMoving(false);
+            cout << "casa " << i << " destruido " << endl;
         }
     }
 }   
@@ -160,7 +167,7 @@ void AnimateAndUpdateCharacters(double dt) {
 
 void desenhaAlienBullets() {
     if (alienBullet[shotIndex].getMoving()) {
-        alienBullet[shotIndex].desenha(true);
+        alienBullet[shotIndex].desenha(false);
     }
 }
 
@@ -179,10 +186,15 @@ void AnimateAlienShots (double dt, int index) {
     Ponto Deslocamento; 
     Ponto Soma;
     // BULLET
-    Deslocamento.x = dt * alienBullet[index].getVelocidade().x * alienBullet[index].getDirecao().x;
-    Deslocamento.y = dt * alienBullet[index].getVelocidade().y * alienBullet[index].getDirecao().y;
-    Soma = Ponto(alienBullet[index].getPosicao().x + Deslocamento.x, alienBullet[index].getPosicao().y + Deslocamento.y);
-    alienBullet[index].setPosicao(Soma);
+    if (alienSpaceships[index].getMoving()) {
+        Deslocamento.x = dt * alienBullet[index].getVelocidade().x * alienBullet[index].getDirecao().x;
+
+        Deslocamento.y = dt * alienBullet[index].getVelocidade().y * alienBullet[index].getDirecao().y;
+
+        Soma = Ponto(alienBullet[index].getPosicao().x + Deslocamento.x, alienBullet[index].getPosicao().y + Deslocamento.y);
+
+        alienBullet[index].setPosicao(Soma);
+    }
 }
 
 void DrawAllTheCity() {
@@ -192,11 +204,11 @@ void DrawAllTheCity() {
         if (nextposdraw < 100) {
             building[i].setPosicao(Ponto(nextposdraw, 8.5));
             if (building[i].getMoving()) {
-                building[i].desenha(true);
+                building[i].desenha(false);
             }
             else {
                 building[i].setPosicao(Ponto(10, 10));
-                building[i].desenha(true);
+                building[i].desenha(false);
             }
             nextposdraw += 12;  // Aumenta para o proximo setor de desenho
         }
@@ -209,7 +221,7 @@ void DrawAllTheCity() {
         if (nextposdraw < 100) {
             house[i].setPosicao(Ponto(nextposdraw+3, 12));
             if (house[i].getMoving()) {
-                house[i].desenha(true);
+                house[i].desenha(false);
             }
             nextposdraw += 15;  // Aumenta para o proximo setor de desenho
         }
@@ -232,8 +244,8 @@ void DefinesBezierCurves(bool curveDireciton) {
     if (curveDireciton == true) {
         for (int i = 0;i < NUM_ALIENS; i++) { 
             if (cont < 5) {    
-                alienSpaceships[i].pontosBezier[0] = Ponto(cont*12+spacesize, 70);
-                alienSpaceships[i].pontosBezier[1] = Ponto((cont*12)+spacesize + 3, 80);
+                alienSpaceships[i].pontosBezier[0] = Ponto(cont*12+spacesize, 60);
+                alienSpaceships[i].pontosBezier[1] = Ponto((cont*12)+spacesize + 3, 70);
                 alienSpaceships[i].pontosBezier[2] = Ponto((cont*12)+spacesize + 6, 60);
                 cont++;
             }
@@ -246,8 +258,8 @@ void DefinesBezierCurves(bool curveDireciton) {
         for (int i = 0;i < NUM_ALIENS; i++) { 
             if (cont < 5) {              
                 alienSpaceships[i].pontosBezier[0] = Ponto(alienSpaceships[i].pontosBezier[2].x, 60);
-                alienSpaceships[i].pontosBezier[1] = Ponto(alienSpaceships[i].pontosBezier[1].x - 3, 80);
-                alienSpaceships[i].pontosBezier[2] = Ponto(alienSpaceships[i].pontosBezier[0].x - 6, 70);
+                alienSpaceships[i].pontosBezier[1] = Ponto(alienSpaceships[i].pontosBezier[1].x - 3, 70);
+                alienSpaceships[i].pontosBezier[2] = Ponto(alienSpaceships[i].pontosBezier[0].x - 6, 60);
                 cont++;
             }
             else {
@@ -275,12 +287,14 @@ void InitializeCharacters() {
         building[i].setMatrixDrawning(matrixDrawBuilding);
         building[i].setEscala(Ponto(1.5, 1.5));
         building[i].criaEnvelope();
+        building[i].setRotacao(0);
         building[i].setMoving(true);
     }
     for (i = 0; i < NUM_HOUSES; i++) {
         house[i] = Instancia(HOUSE);
         house[i].setMatrixDrawning(matrixDrawHouse);
         house[i].setEscala(Ponto(0.8,0.8));
+        house[i].setRotacao(0);
         house[i].criaEnvelope();
         house[i].setMoving(true);
     }
@@ -361,7 +375,7 @@ void animate()
         alienBullet[shotIndex].setDirecao(Ponto(0, -1));
         alienBullet[shotIndex].setEscala(Ponto(0.2,0.2));
         alienBullet[shotIndex].setMoving(true);
-        detectaColisoesNoMapa();
+        detectaColisoesNoMapa(shotIndex);
         TempoTotal = 0;
     }
 
@@ -400,8 +414,12 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case 32: // Tecla de tiro e start
         startgame = true;
-        var1 = heroSpaceship.getPosicao().x + (heroSpaceship.getDrawning()->maxcol/2) * heroSpaceship.getEscala().x;
-        var2 = heroSpaceship.getPosicao().y + (heroSpaceship.getDrawning()->maxrow/2) * heroSpaceship.getEscala().y;
+        var1 = heroSpaceship.getPosicao().x+4;
+        var2 = heroSpaceship.getPosicao().y;
+        if (var1 > 60) {
+            var1 + 16;
+        }   
+
         bullet.setPosicao(Ponto(var1,var2));
         bullet.setRotacao(heroSpaceship.getRotacao());
         bullet.setDirecao(Ponto(0, 1));
@@ -419,10 +437,10 @@ void arrow_keys ( int a_keys, int x, int y )
 	switch ( a_keys )
 	{
         case GLUT_KEY_UP: // movimenta para cima
-            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x, heroSpaceship.getPosicao().y + 1));
+            heroSpaceship.setRotacao(heroSpaceship.getRotacao()- 1);
             break;
         case GLUT_KEY_DOWN: // movimenta para baixo
-            heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x, heroSpaceship.getPosicao().y - 1));
+            heroSpaceship.setRotacao(heroSpaceship.getRotacao()+1);
             break;
         case GLUT_KEY_RIGHT: // movimenta a nave do heroi para esquerda
             heroSpaceship.setPosicao(Ponto(heroSpaceship.getPosicao().x+1, heroSpaceship.getPosicao().y));
@@ -477,22 +495,15 @@ void display(void)
 	glLoadIdentity();
     glOrtho(0, WIDTH, 0, HEIGTH, 0, 1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    //if (gaming) {
+    if (gaming) {
         DrawAllTheCity();
         if (bullet.getMoving()) {
             shotBullet();
         } 
         DrawAllAlienSpaceShips();
     
-        heroSpaceship.desenha(true);
-        glPushMatrix();
-        {    
-            glTranslated(heroSpaceship.getPosicao().x, heroSpaceship.getPosicao().y, 0);
-            glScalef(heroSpaceship.getEscala().x, heroSpaceship.getEscala().y, 0);
-            heroSpaceship.envelope.desenhaPoligono();
-        } 
-        glPopMatrix();
+        heroSpaceship.desenha(false);
+ 
         desenhaAlienBullets();
         int cont = 0;
         for (int i = 0; i < NUM_ALIENS; i++) {
@@ -503,17 +514,17 @@ void display(void)
         if (cont == 0) {
             gaming = false;
         }
-   // } else {
-   //     glColor3f(0,0,0); 
-   //     drawString(40, 70, 0, "ENG GAME");
-   //     if (ganhou) {
-   //         glColor3f(0,0,0); 
-   //         drawString(40, 50, 0, "YOU WIN");
-   //     } else {
-   //         glColor3f(0,0,0); 
-   //         drawString(40, 50, 0, "YOU LOOSE");
-   //     }
-   // }
+    } else {
+        glColor3f(0,0,0); 
+        drawString(40, 70, 0, "ENG GAME");
+        if (ganhou) {
+            glColor3f(0,0,0); 
+            drawString(40, 50, 0, "YOU WIN");
+        } else {
+            glColor3f(0,0,0); 
+            drawString(40, 50, 0, "YOU LOOSE");
+        }
+    }
     glutSwapBuffers();
 }
 // **********************************************************************
