@@ -15,7 +15,7 @@ private:
     float aimingAngle;
     bool animando; 
 public: 
-    Ponto pontosBezier[3];
+
 
     SpaceShip(){}
 

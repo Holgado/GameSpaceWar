@@ -31,6 +31,8 @@ protected:
     float rotacao;
     bool moving = false;
 public:
+    Ponto pontosBezier[3];
+
     PoligonoCSG envelope;
     Instancia() {}
     Instancia(Modelos tipo);

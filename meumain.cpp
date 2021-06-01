@@ -46,6 +46,7 @@ using namespace std;
 #define WIDTH 100
 #define HEIGTH 100
 #define NUM_ENEMIES 7
+#define MAXSHOT 10
 
 Temporizador Timer;
 MatrixDrawning *matrixDrawHero = new MatrixDrawning();
@@ -73,6 +74,7 @@ bool shotFlag = false;
 int shotIndex = rand() % NUM_ENEMIES;
 bool gaming = true;
 bool ganhou = false;
+int contatiros = MAXSHOT;
 // **********************************************************************
 //  Functions
 // **********************************************************************
@@ -118,16 +120,30 @@ void detectaColisoes() {
     }
 }
 
+void detectaColisaoHero (int index) {
+    for(int i = 0;i < NUM_BUILDINGS; i++) {
+        if (alienBullet[index].getMoving()) {
+            if (heroSpaceship.envelope.isInside(alienBullet[index].getPosicao(), heroSpaceship.envelope)) {
+                alienBullet[index].setMoving(false);
+                heroSpaceship.setLife(heroSpaceship.getLife()-25);
+                cout << "morreu " << i << endl;
+                break;
+            }
+        }
+    }
+}
+
 void detectaColisoesNoMapa (int index) {
     for(int i = 0;i < NUM_BUILDINGS; i++) {
         if (building[i].getMoving()) {
-            if (alienBullet[index].envelope.isInside(building[i].getPosicao(), alienBullet[index].envelope)) {
+            if (building[i].envelope.isInside(alienBullet[index].getPosicao(), building[i].envelope)) {
                 building[i].setMoving(false);
                 cout << "Predio " << i << endl;
                 break;
             }
         }
     }
+
     for(int i = 0;i < NUM_HOUSES; i++) {
         if (house[i].getMoving()) {   
             if (house[i].envelope.isInside(alienBullet[index].getPosicao(), house[i].envelope)) {
@@ -200,6 +216,7 @@ void AnimateAlienShots (double dt, int index) {
         Soma = Ponto(alienBullet[index].getPosicao().x + Deslocamento.x, alienBullet[index].getPosicao().y + Deslocamento.y);
         alienBullet[index].setPosicao(Soma);
         detectaColisoesNoMapa(index);
+        detectaColisaoHero(index);
     }
 }
 
@@ -210,7 +227,9 @@ void DrawAllTheCity() {
         if (nextposdraw < 100) {
             //if (building[i].getMoving()) {
                 building[i].setPosicao(Ponto(nextposdraw, 8.5));
+                glPushMatrix();
                 building[i].desenha(false);
+                glPopMatrix();
                 //glPushMatrix();
                 //glTranslatef(building[i].getPosicao().x,building[i].getPosicao().y,0);
                 //glScalef(1.5,1.5,0);
@@ -228,7 +247,9 @@ void DrawAllTheCity() {
         if (nextposdraw < 100) {
             //if (house[i].getMoving()) {
                 house[i].setPosicao(Ponto(nextposdraw+3, 12));
+                glPushMatrix();
                 house[i].desenha(false);
+                glPopMatrix();
                 //glPushMatrix();
                 //glTranslatef(house[i].getPosicao().x,house[i].getPosicao().y,0);
                 //glScalef(0.8,0.8,0);
@@ -292,6 +313,7 @@ void InitializeCharacters() {
     heroSpaceship.setPosicao(Ponto(20,20));         // Posicao inicial do heroi
     heroSpaceship.setEscala(Ponto(0.4, 0.4));
     heroSpaceship.setVelocidade(Ponto((Max.x - Min.x)/tempo, (Max.y - Min.y)/tempo));
+    heroSpaceship.setLife(100);
     heroSpaceship.criaEnvelope();
     // Incializa os ojetos da cidade
     for (i = 0; i < NUM_BUILDINGS; i++) {
@@ -364,6 +386,10 @@ void VerificaGanhador () {
             ganhou = true;
         }
     }
+    if(contatiros < 0 || heroSpaceship.getLife() <= 0) {
+        gaming = false;
+        ganhou = false;
+    }
 }
 
 // **********************************************************************
@@ -402,6 +428,7 @@ void animate()
     }
 
     AnimateAndUpdateCharacters(dt);
+    AnimateAlienShots(dt, shotIndex);
     
     if (bullet.getMoving()) {
         AnimateHeroShots(dt);
@@ -418,6 +445,8 @@ void animate()
         alienBullet[shotIndex].setDirecao(Ponto(0, -1));
         alienBullet[shotIndex].setEscala(Ponto(0.2,0.2));
         alienBullet[shotIndex].setMoving(true);
+
+        
         TempoTotal = 0;
     }
 
@@ -425,7 +454,6 @@ void animate()
         alienBullet[shotIndex].setMoving(false);    
     }
 
-    AnimateAlienShots(dt, shotIndex);
     detectaColisoes();
 
     VerificaGanhador();
@@ -468,6 +496,7 @@ void keyboard(unsigned char key, int x, int y)
         bullet.setDirecao(Ponto(0, 1));
         bullet.setMoving(true);
         shotFlag = true;
+        contatiros--;
         break;
     default:
         break;
@@ -503,7 +532,7 @@ void drawString(float x, float y, float z, string str)
 
     for (string::iterator it = str.begin(); it != str.end(); ++it)
     {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *it); // Updates the position
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *it); // Updates the position
     }
 }
 void drawRetBackGround() {
@@ -544,6 +573,15 @@ void display(void)
         DrawAllAlienSpaceShips();
         heroSpaceship.desenha(false);
         desenhaAlienBullets();
+        stringstream tiro;
+        tiro << "TIROS RESTANTES: " << contatiros << endl;
+        glColor3f(0,0,0);
+        drawString(2, 90, 0, tiro.str());
+
+        stringstream vida;
+        vida << "VIDA: " << heroSpaceship.getLife() << endl;
+        glColor3f(0,0,0);
+        drawString(70, 90, 0, vida.str());
     } else {
         glColor3f(0,0,0); 
         drawString(40, 70, 0, "ENG GAME");
