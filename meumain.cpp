@@ -75,6 +75,7 @@ int shotIndex = rand() % NUM_ENEMIES;
 bool gaming = true;
 bool ganhou = false;
 int contatiros = MAXSHOT;
+bool ifinit;
 // **********************************************************************
 //  Functions
 // **********************************************************************
@@ -82,8 +83,8 @@ void DrawAllTheCity();
 void DefinesBezierCurves(bool);
 void AnimateAlienShots (double dt, int index);
 void detectaColisoesNoMapa();
-
-
+void drawBackground();
+void DesenhaPredioCasas();
 void initBackGroundTex (void) {
     BackTex = LoadTexture("background.jpg");
 }
@@ -126,7 +127,6 @@ void detectaColisaoHero (int index) {
             if (heroSpaceship.envelope.isInside(alienBullet[index].getPosicao(), heroSpaceship.envelope)) {
                 alienBullet[index].setMoving(false);
                 heroSpaceship.setLife(heroSpaceship.getLife()-25);
-                cout << "morreu " << i << endl;
                 break;
             }
         }
@@ -138,7 +138,8 @@ void detectaColisoesNoMapa (int index) {
         if (building[i].getMoving()) {
             if (building[i].envelope.isInside(alienBullet[index].getPosicao(), building[i].envelope)) {
                 building[i].setMoving(false);
-                cout << "Predio " << i << endl;
+                alienBullet[index].setMoving(false);
+                //cout << "Predio " << i << endl;
                 break;
             }
         }
@@ -148,7 +149,8 @@ void detectaColisoesNoMapa (int index) {
         if (house[i].getMoving()) {   
             if (house[i].envelope.isInside(alienBullet[index].getPosicao(), house[i].envelope)) {
                 house[i].setMoving(false);
-                cout << "Casa " << i << endl;
+                alienBullet[index].setMoving(false);
+                //cout << "Casa " << i << endl;
                 break;
             }
         }
@@ -177,16 +179,10 @@ void AvancaComBezier()
 void AnimateAndUpdateCharacters(double dt) {
     Ponto Deslocamento; 
     Ponto Soma;
-    // HERO 
-    //Deslocamento.x = dt * heroSpaceship.getVelocidade().x * heroSpaceship.getDirecao().x;
-    //Deslocamento.y = dt * heroSpaceship.getVelocidade().y * heroSpaceship.getDirecao().y;
-    //Soma = Ponto(heroSpaceship.getPosicao().x + Deslocamento.x, heroSpaceship.getPosicao().y + Deslocamento.y);
-    //heroSpaceship.setPosicao(Soma);
     // ALIENS
-
     AvancaComBezier();
-
     DrawAllTheCity();
+    DesenhaPredioCasas();
 }
 
 void desenhaAlienBullets() {
@@ -224,18 +220,8 @@ void DrawAllTheCity() {
     int cntbuilding = 0, cnthouse = 0;
     int nextposdraw = 0;
     for (int i = 0; i < NUM_BUILDINGS; i++) {
-        if (nextposdraw < 100) {
-            //if (building[i].getMoving()) {
-                building[i].setPosicao(Ponto(nextposdraw, 8.5));
-                glPushMatrix();
-                building[i].desenha(false);
-                glPopMatrix();
-                //glPushMatrix();
-                //glTranslatef(building[i].getPosicao().x,building[i].getPosicao().y,0);
-                //glScalef(1.5,1.5,0);
-                //building[i].envelope.desenhaPoligono();
-                //glPopMatrix();
-            //}
+        if (nextposdraw < WIDTH) {
+            building[i].setPosicao(Ponto(nextposdraw, 8.5));
             nextposdraw += 12;  // Aumenta para o proximo setor de desenho
         }
         else {
@@ -244,18 +230,8 @@ void DrawAllTheCity() {
     }
     nextposdraw = 8;
     for (int i = 0; i < NUM_HOUSES; i++) {
-        if (nextposdraw < 100) {
-            //if (house[i].getMoving()) {
-                house[i].setPosicao(Ponto(nextposdraw+3, 12));
-                glPushMatrix();
-                house[i].desenha(false);
-                glPopMatrix();
-                //glPushMatrix();
-                //glTranslatef(house[i].getPosicao().x,house[i].getPosicao().y,0);
-                //glScalef(0.8,0.8,0);
-                //house[i].envelope.desenhaPoligono();
-                //glPopMatrix();
-            //}
+        if (nextposdraw < WIDTH) {
+            house[i].setPosicao(Ponto(nextposdraw+3, 12));
             nextposdraw += 15;  // Aumenta para o proximo setor de desenho
         }
         else {
@@ -263,6 +239,20 @@ void DrawAllTheCity() {
         }
     }
 }
+
+void DesenhaPredioCasas() {
+    for (int i = 0; i < NUM_BUILDINGS; i++) {
+        if (building[i].getMoving()) {
+           building[i].desenha(false);
+        }
+    }
+    for (int i = 0; i < NUM_HOUSES; i++) {
+        if (house[i].getMoving()) {
+            house[i].desenha(false);
+        }
+    }
+}
+
 void DrawAllAlienSpaceShips () {
     for (int i = 0; i < NUM_ALIENS; i++) {   
         if (alienSpaceships[i].getMoving()) {
@@ -332,6 +322,7 @@ void InitializeCharacters() {
         house[i].criaEnvelope();
         house[i].setMoving(true);
     }
+    DrawAllTheCity();
     // Incializa as naves alienigenas
     for (i = 0; i < NUM_ALIENS; i++) {
         alienSpaceships[i] = SpaceShip(ALIEN);
@@ -406,8 +397,9 @@ void init()
     matrixDrawHouse->readSketch("house.txt"); 
     matrixDrawBullet->readSketch("bullet.txt");
     // inicializando os objetos
-    
+
     InitializeCharacters();
+    ifinit = true;
     tempo = 3;
 }
 double nFrames = 0;
@@ -562,11 +554,12 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT);
     drawBackground();
     glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+    glLoadIdentity();
     glOrtho(0, WIDTH, 0, HEIGTH, 0, 1); // Janela de selecao
     glMatrixMode(GL_MODELVIEW);
+        
     if (gaming) {
-        DrawAllTheCity();
+        DesenhaPredioCasas();
         if (bullet.getMoving()) {
             shotBullet();
         } 
