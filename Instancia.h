@@ -29,7 +29,7 @@ protected:
     Modelos tipo;
     Ponto Posicao, Escala, Direcao, Velocidade;
     float rotacao;
-    bool moving = false; 
+    bool moving = false;
 public:
     PoligonoCSG envelope;
     Instancia() {}

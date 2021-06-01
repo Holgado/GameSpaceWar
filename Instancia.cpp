@@ -41,8 +41,17 @@ Modelos Instancia::getTipo(){
 }
     
 void Instancia::setPosicao(Ponto posicao) {
-    Posicao.x = posicao.x;
-    Posicao.y = posicao.y;
+    if (tipo == HERO) {  
+        if (posicao.x > 100) {
+            Posicao.x = 100;
+        }else {
+            Posicao.x = posicao.x;
+        }
+        Posicao.y = posicao.y; 
+    }else {
+        Posicao.x = posicao.x;
+        Posicao.y = posicao.y;
+    }
     envelope.atualizaLimites(posicao.x, posicao.y, posicao.x + drawning->maxcol, posicao.y + drawning->maxrow);
 }
 Ponto Instancia::getPosicao() {
