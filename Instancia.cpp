@@ -52,7 +52,11 @@ void Instancia::setPosicao(Ponto posicao) {
         Posicao.x = posicao.x;
         Posicao.y = posicao.y;
     }
-    envelope.atualizaLimites(posicao.x, posicao.y, posicao.x + drawning->maxcol, posicao.y + drawning->maxrow);
+    if (tipo == HOUSE || tipo == BUILD) {
+        envelope.atualizaLimites(posicao.x, posicao.y, posicao.x + drawning->maxcol, posicao.y + drawning->maxrow);
+    } else {
+        envelope.atualizaLimites(posicao.x, posicao.y, posicao.x + drawning->maxcol, posicao.y + drawning->maxrow);
+    }
 }
 Ponto Instancia::getPosicao() {
     return Posicao;

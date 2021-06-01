@@ -123,6 +123,7 @@ void detectaColisoesNoMapa (int index) {
         if (building[i].getMoving()) {
             if (alienBullet[index].envelope.isInside(building[i].getPosicao(), alienBullet[index].envelope)) {
                 building[i].setMoving(false);
+                cout << "Predio " << i << endl;
                 break;
             }
         }
@@ -131,6 +132,7 @@ void detectaColisoesNoMapa (int index) {
         if (house[i].getMoving()) {   
             if (house[i].envelope.isInside(alienBullet[index].getPosicao(), house[i].envelope)) {
                 house[i].setMoving(false);
+                cout << "Casa " << i << endl;
                 break;
             }
         }
@@ -209,6 +211,11 @@ void DrawAllTheCity() {
             //if (building[i].getMoving()) {
                 building[i].setPosicao(Ponto(nextposdraw, 8.5));
                 building[i].desenha(false);
+                //glPushMatrix();
+                //glTranslatef(building[i].getPosicao().x,building[i].getPosicao().y,0);
+                //glScalef(1.5,1.5,0);
+                //building[i].envelope.desenhaPoligono();
+                //glPopMatrix();
             //}
             nextposdraw += 12;  // Aumenta para o proximo setor de desenho
         }
@@ -222,6 +229,11 @@ void DrawAllTheCity() {
             //if (house[i].getMoving()) {
                 house[i].setPosicao(Ponto(nextposdraw+3, 12));
                 house[i].desenha(false);
+                //glPushMatrix();
+                //glTranslatef(house[i].getPosicao().x,house[i].getPosicao().y,0);
+                //glScalef(0.8,0.8,0);
+                //house[i].envelope.desenhaPoligono();
+                //glPopMatrix();
             //}
             nextposdraw += 15;  // Aumenta para o proximo setor de desenho
         }
